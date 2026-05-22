@@ -65,7 +65,7 @@ export default function GamingWebsite() {
       form.append("message", formData.message);
 
       const response = await fetch(
-        "https://formspree.io/f/xyzdefgh",
+        "https://formspree.io/f/mjgzwnwy",
         {
           method: "POST",
           body: form,

@@ -10,10 +10,14 @@ export default function GamingWebsite() {
     gameLevel: "",
     email: "",
     whatsapp: "",
+    photo: null,
+    photoPreview: null,
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const [showWinnerScreen, setShowWinnerScreen] = useState(false);
+  const [winnerId, setWinnerId] = useState(null);
 
   const [authData, setAuthData] = useState({
     username: "",
@@ -27,6 +31,21 @@ export default function GamingWebsite() {
       ...prev,
       [name]: value,
     }));
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prev) => ({
+          ...prev,
+          photo: file,
+          photoPreview: reader.result,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleAuthChange = (e) => {
@@ -47,9 +66,10 @@ export default function GamingWebsite() {
       !formData.playerName ||
       !formData.freeFireUID ||
       !formData.email ||
-      !formData.whatsapp
+      !formData.whatsapp ||
+      !formData.photoPreview
     ) {
-      setSubmitMessage("❌ कृपया सभी जरूरी फील्ड भरें");
+      setSubmitMessage("❌ कृपया सभी जरूरी फील्ड भरें (Photo भी जरूरी है)");
       setIsSubmitting(false);
       return;
     }
@@ -76,13 +96,34 @@ export default function GamingWebsite() {
       );
 
       if (response.ok) {
-        setSubmitMessage("✅ आवेदन सफलतापूर्वक जमा हो गया 🚀");
+        // Save to localStorage
+        const playerData = {
+          playerName: formData.playerName,
+          freeFireUID: formData.freeFireUID,
+          gameLevel: formData.gameLevel,
+          email: formData.email,
+          whatsapp: formData.whatsapp,
+          photoPreview: formData.photoPreview,
+          timestamp: new Date().toLocaleString(),
+        };
+
+        const existingPlayers = JSON.parse(localStorage.getItem("ffPlayers")) || [];
+        existingPlayers.push(playerData);
+        localStorage.setItem("ffPlayers", JSON.stringify(existingPlayers));
+
+        // Show winner screen
+        setWinnerId(existingPlayers.length - 1);
+        setShowWinnerScreen(true);
+
+        // Reset form
         setFormData({
           playerName: "",
           freeFireUID: "",
           gameLevel: "",
           email: "",
           whatsapp: "",
+          photo: null,
+          photoPreview: null,
           message: "",
         });
       } else {
@@ -120,6 +161,149 @@ export default function GamingWebsite() {
       password: "",
     });
   };
+
+  // Winner Screen Component
+  if (showWinnerScreen && winnerId !== null) {
+    const playerData = JSON.parse(localStorage.getItem("ffPlayers"))[winnerId];
+
+    return (
+      <div className="min-h-screen bg-black text-white font-sans overflow-hidden flex items-center justify-center">
+        {/* Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-black to-blue-900 opacity-90"></div>
+
+        {/* Animated Confetti Background */}
+        <style>{`
+          @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+          }
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) scale(1); opacity: 1; }
+            50% { transform: translateY(-30px) scale(1.2); opacity: 1; }
+          }
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+          }
+          .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            animation: fall 3s linear infinite;
+          }
+          .glow-text {
+            animation: pulse 1.5s ease-in-out infinite;
+          }
+        `}</style>
+
+        {/* Confetti particles */}
+        {[...Array(50)].map((_, i) => (
+          <div
+            key={i}
+            className="confetti"
+            style={{
+              left: `${Math.random() * 100}%`,
+              backgroundColor: ["#ff0000", "#0000ff", "#ffff00", "#00ff00", "#ff00ff"][
+                Math.floor(Math.random() * 5)
+              ],
+              animationDelay: `${Math.random() * 0.5}s`,
+              animationDuration: `${2 + Math.random() * 1}s`,
+            }}
+          />
+        ))}
+
+        <div className="relative z-10 text-center px-6">
+          {/* Trophy Icon */}
+          <div className="text-9xl mb-8 glow-text">🏆</div>
+
+          {/* Main Heading */}
+          <h1 className="text-6xl md:text-7xl font-black mb-6 bg-gradient-to-r from-yellow-400 via-red-500 to-yellow-400 bg-clip-text text-transparent drop-shadow-xl glow-text">
+            CONGRATULATIONS!
+          </h1>
+
+          {/* Player Info Box */}
+          <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-xl border-2 border-yellow-400 rounded-3xl p-8 mb-8 shadow-2xl">
+            {/* Player Photo */}
+            {playerData.photoPreview && (
+              <div className="mb-8 flex justify-center">
+                <div className="relative">
+                  <img
+                    src={playerData.photoPreview}
+                    alt={playerData.playerName}
+                    className="w-40 h-40 rounded-full border-4 border-yellow-400 object-cover glow-text"
+                  />
+                  <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-red-600 to-blue-600 text-white px-6 py-2 rounded-full font-bold text-lg">
+                    ⭐ NEW WARRIOR ⭐
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Player Name */}
+            <h2 className="text-5xl font-black text-yellow-300 mb-4 drop-shadow-lg">
+              {playerData.playerName}
+            </h2>
+
+            {/* Player Stats */}
+            <div className="space-y-4 mb-8">
+              <div className="bg-black/40 rounded-2xl p-4 border border-yellow-400">
+                <p className="text-gray-300 text-sm">Free Fire UID</p>
+                <p className="text-2xl font-bold text-yellow-300">{playerData.freeFireUID}</p>
+              </div>
+              {playerData.gameLevel && (
+                <div className="bg-black/40 rounded-2xl p-4 border border-blue-400">
+                  <p className="text-gray-300 text-sm">In-Game Level</p>
+                  <p className="text-2xl font-bold text-blue-300">{playerData.gameLevel}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Welcome Message */}
+            <p className="text-2xl font-bold text-green-400 mb-8 drop-shadow-lg">
+              🎮 You are now a WARRIOR of FF YOU MEAN! 🎮
+            </p>
+
+            {/* Info Message */}
+            <div className="bg-gradient-to-r from-blue-500/30 to-purple-500/30 border-2 border-blue-400 rounded-2xl p-6 mb-8">
+              <p className="text-lg font-semibold text-white mb-3 drop-shadow-lg">
+                📱 आगे की जानकारी के लिए:
+              </p>
+              <p className="text-xl text-yellow-300 font-bold drop-shadow-lg">
+                "Free Fire Max से आगे की जानकारी WhatsApp पर मिल जाएगी"
+              </p>
+              <p className="text-lg text-gray-200 mt-3 drop-shadow-lg">
+                Join करने के लिए WhatsApp पर पता चल जाएगा
+              </p>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-4">
+              <a
+                href="https://wa.me/918879292668?text=Hello%20FF%20YOU%20MEAN%20Team%2C%20I%20have%20successfully%20joined!%20My%20name%20is%20"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-4 rounded-2xl text-2xl font-bold bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-105 transition-all duration-300 shadow-2xl text-white"
+              >
+                📲 WhatsApp पर Message भेजो
+              </a>
+
+              <button
+                onClick={() => setShowWinnerScreen(false)}
+                className="w-full py-4 rounded-2xl text-2xl font-bold bg-gradient-to-r from-red-600 to-blue-600 hover:scale-105 transition-all duration-300 shadow-2xl"
+              >
+                🏠 Home पर जाओ
+              </button>
+            </div>
+          </div>
+
+          {/* Celebration Text */}
+          <div className="text-6xl mb-8 space-x-4">
+            🎉 🎊 🎆 🎇 ✨
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white font-sans overflow-hidden">
@@ -291,6 +475,29 @@ export default function GamingWebsite() {
                 className="w-full p-4 rounded-2xl bg-black/40 border border-gray-700 focus:outline-none focus:border-red-500"
                 required
               />
+
+              {/* Photo Upload */}
+              <div className="space-y-3">
+                <label className="block text-lg font-semibold text-yellow-300">
+                  📸 अपनी Photo Upload करो (जरूरी है!)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  className="w-full p-4 rounded-2xl bg-black/40 border-2 border-yellow-400 focus:outline-none cursor-pointer"
+                  required
+                />
+                {formData.photoPreview && (
+                  <div className="mt-4">
+                    <img
+                      src={formData.photoPreview}
+                      alt="Preview"
+                      className="w-32 h-32 rounded-2xl object-cover mx-auto border-2 border-green-400"
+                    />
+                  </div>
+                )}
+              </div>
 
               <textarea
                 name="message"

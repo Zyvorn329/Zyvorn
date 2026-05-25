@@ -135,9 +135,9 @@ export default function GamingWebsite() {
         <header className="flex items-center justify-between px-8 py-6 border-b border-white/10 backdrop-blur-md">
           <div>
             <h1 className="text-4xl font-extrabold tracking-widest text-red-500 drop-shadow-lg">
-              ZYVORN
+              FF YOU MEAN
             </h1>
-            <p className="text-sm text-gray-300">Free Fire Esports Clan</p>
+            <p className="text-sm text-gray-300">🎮 The Ultimate Gaming Community | Free Fire Warriors</p>
           </div>
 
           {/* Desktop Navigation */}
@@ -210,10 +210,10 @@ export default function GamingWebsite() {
           <div className="grid md:grid-cols-2 gap-10">
             <div className="bg-white/5 backdrop-blur-lg rounded-3xl p-8 border border-white/10 shadow-xl">
               <h3 className="text-4xl font-bold text-red-400 mb-4">
-                About Our Clan
+                About FF YOU MEAN
               </h3>
               <p className="text-gray-300 leading-8 text-lg">
-                ZYVORN is a competitive Free Fire gaming clan built for skilled
+                FF YOU MEAN is a competitive Free Fire gaming community built for skilled
                 players who want to dominate ranked matches and esports events.
                 We focus on teamwork, strategy, and becoming champions.
               </p>
@@ -317,7 +317,7 @@ export default function GamingWebsite() {
             </form>
 
             <a
-              href="https://wa.me/918879292668?text=Hello%20ZYVORN%20Team%2C%20I%20want%20to%20join%20the%20clan!"
+              href="https://wa.me/918879292668?text=Hello%20FF%20YOU%20MEAN%20Team%2C%20I%20want%20to%20join!"
               target="_blank"
               rel="noopener noreferrer"
               className="block mt-8 text-center w-full py-4 rounded-2xl text-2xl font-bold bg-green-600 hover:scale-[1.02] transition-all duration-300 shadow-xl"
@@ -389,7 +389,7 @@ export default function GamingWebsite() {
           id="contact"
           className="border-t border-white/10 text-center py-8 text-gray-400"
         >
-          <p className="text-lg">© 2026 ZYVORN Esports Clan • All Rights Reserved</p>
+          <p className="text-lg">© 2026 FF YOU MEAN • The Ultimate Gaming Community • All Rights Reserved</p>
           <p className="mt-4 text-sm">
             WhatsApp: <a href="https://wa.me/918879292668" className="text-green-400 hover:underline">+91 8879292668</a>
           </p>
